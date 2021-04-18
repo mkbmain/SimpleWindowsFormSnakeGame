@@ -44,6 +44,8 @@ namespace SimpleSnakeGame
 
         public SnakeGame()
         {
+            
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.Text = $"Snake Score:{_score}";
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
