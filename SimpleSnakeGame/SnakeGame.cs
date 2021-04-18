@@ -8,14 +8,20 @@ namespace SimpleSnakeGame
 {
     public class SnakeGame : Form
     {
-        private const int xLenght = 32;
-        private const int yLenght = 32;
-        private static Random _random = new Random(Guid.NewGuid().GetHashCode());
+        private const int XLenght = 32;
+        private const int YLenght = 32;
+        private static readonly Random Random = new Random(Guid.NewGuid().GetHashCode());
         private int _score = 0;
         private const int Speed = 15;
         private readonly Color _food = Color.Brown;
-        private readonly Timer Timer;
-
+        private readonly Timer _timer;
+        
+        private List<Point> _snake; // first elements tail , last elements head
+        private Direction _direction = Direction.East;
+        private Direction _lastDirection = Direction.East;
+        private readonly System.ComponentModel.IContainer components = null;
+        private readonly GridControl _gridControl;
+        
         [STAThread]
         static void Main()
         {
@@ -24,13 +30,7 @@ namespace SimpleSnakeGame
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new SnakeGame());
         }
-
-        private List<Point> Snake; // first elements tail , last elements head
-        private Direction _direction = Direction.East;
-        private Direction _lastDirection = Direction.East;
-        private System.ComponentModel.IContainer components = null;
-        private GridControl _gridControl;
-
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -40,37 +40,39 @@ namespace SimpleSnakeGame
 
             base.Dispose(disposing);
         }
-
-
+        
         public SnakeGame()
         {
-            
+            this.components = new System.ComponentModel.Container();
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.Text = $"Snake Score:{_score}";
-            this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            _gridControl = new GridControl(xLenght, yLenght, new Size(this.Width - 15, this.Height - 40));
+            _gridControl = new GridControl(XLenght, YLenght, new Size(this.Width - 15, this.Height - 40));
             this.Controls.Add(_gridControl);
-            this.Resize += OnResize;
             this.KeyPreview = true;
+            this.Resize += (sender, args) =>
+            {
+                _gridControl.Size = new Size(this.Width - 15, this.Height - 40);
+                _gridControl.Resize();
+            };
 
-            Timer = new Timer(components) {Interval = 1000 / Speed};
-            components.Add(Timer);
-            Timer.Tick += GameLoop;
+            _timer = new Timer(components) {Interval = 1000 / Speed};
+            components.Add(_timer);
+            _timer.Tick += GameLoop;
             NewGame();
    
         }
 
         private void NewGame()
         {
-            Snake = new List<Point> {new Point(13, 16), new Point(14, 16), new Point(15, 16), new Point(16, 16)};
-            foreach (var item in Snake)
+            _snake = new List<Point> {new Point(13, 16), new Point(14, 16), new Point(15, 16), new Point(16, 16)};
+            foreach (var item in _snake)
             {
                 _gridControl.GetCord(item).BackColor = Color.Black;
             }
             GenFood();
-            Timer.Enabled = true;
+            _timer.Enabled = true;
         }
         
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -78,8 +80,8 @@ namespace SimpleSnakeGame
             switch (keyData)
             {
                 case Keys.P:
-                    Timer.Enabled = !Timer.Enabled;
-                    if (!Timer.Enabled)
+                    _timer.Enabled = !_timer.Enabled;
+                    if (!_timer.Enabled)
                     {
                         this.Text = this.Text + " {Paused}";
                     }
@@ -118,24 +120,22 @@ namespace SimpleSnakeGame
 
                     break;
             }
-
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void GenFood()
         {
             var freeLabels = _gridControl._labels.SelectMany(t => t.Where(y => y.BackColor == Color.White)).ToArray();
-            freeLabels[_random.Next(0, freeLabels.Length)].BackColor = _food;
+            freeLabels[Random.Next(0, freeLabels.Length)].BackColor = _food;
         }
 
 
         private void GameLoop(object? sender, EventArgs e)
         {
-            var head = Snake.Last();
-            var tail = Snake.First();
-
-
-            Point point = new Point(head.X, head.Y);
+            var head = _snake.Last();
+            var tail = _snake.First();
+            
+            var point = new Point(head.X, head.Y);
             _lastDirection = _direction;
             switch (_direction)
             {
@@ -155,10 +155,10 @@ namespace SimpleSnakeGame
                     throw new ArgumentOutOfRangeException();
             }
 
-
-            if (point.X >= xLenght || point.Y >= yLenght || point.X < 0 || point.Y < 0 || Snake.Skip(1).Contains(point))
+            // check if out side bounds of map or we have hit our own tail\other part of snake
+            if (point.X >= XLenght || point.Y >= YLenght || point.X < 0 || point.Y < 0 || _snake.Skip(1).Contains(point))
             {
-                Timer.Enabled = false;
+                _timer.Enabled = false;
                 MessageBox.Show($"end your score is {_score}");
                 foreach (var item in   _gridControl._labels.SelectMany(f => f.Select(t=> t)))
                 {
@@ -170,12 +170,13 @@ namespace SimpleSnakeGame
                 return;
             }
 
-            Snake.Add(point);
+            _snake.Add(point);
+            
             var label = _gridControl.GetCord(point);
 
             if (label.BackColor != _food)
             {
-                Snake = Snake.Skip(1).ToList();
+                _snake = _snake.Skip(1).ToList();
             }
             else
             {
@@ -188,11 +189,6 @@ namespace SimpleSnakeGame
             label.BackColor = Color.Black;
             _gridControl.GetCord(tail).BackColor = Color.White;
         }
-
-        private void OnResize(object? sender, EventArgs e)
-        {
-            _gridControl.Size = new Size(this.Width - 15, this.Height - 40);
-            _gridControl.Resize();
-        }
+        
     }
 }
