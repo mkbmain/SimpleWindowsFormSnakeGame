@@ -6,7 +6,7 @@ namespace SimpleSnakeGame
 {
     class GridControl : Control
     {
-        public Label[][] _labels;
+        public readonly Label[][] Labels;
 
         private static Size CalculateSize(int x, int y, Size windowSize)
         {
@@ -20,22 +20,22 @@ namespace SimpleSnakeGame
 
         public Label GetCord(int x, int y)
         {
-            return _labels[x][y];
+            return Labels[x][y];
         }
 
         public GridControl(int x, int y, Size wantedSize)
         {
-            _labels = new Label[x][];
+            Labels = new Label[x][];
             this.Size = wantedSize;
 
             for (int i = 0; i < x; i++)
             {
-                _labels[i] = new Label[y];
+                Labels[i] = new Label[y];
                 for (int j = 0; j < y; j++)
                 {
                     var label = new Label {BorderStyle = BorderStyle.FixedSingle, BackColor = Color.White};
                     this.Controls.Add(label);
-                    _labels[i][j] = label;
+                    Labels[i][j] = label;
                 }
             }
 
@@ -44,14 +44,14 @@ namespace SimpleSnakeGame
 
         public new void Resize()
         {
-            var size = CalculateSize(_labels.Length, _labels.First().Length, this.Size);
-            for (int i = 0; i < _labels.Length; i++)
+            var size = CalculateSize(Labels.Length, Labels.First().Length, this.Size);
+            for (int i = 0; i < Labels.Length; i++)
             {
-                for (int j = 0; j < _labels.First().Length; j++)
+                for (int j = 0; j < Labels.First().Length; j++)
                 {
-                    _labels[i][j].Size = size;
-                    _labels[i][j].Left = size.Width * i;
-                    _labels[i][j].Top = size.Height * j;
+                    Labels[i][j].Size = size;
+                    Labels[i][j].Left = size.Width * i;
+                    Labels[i][j].Top = size.Height * j;
                 }
             }
         }

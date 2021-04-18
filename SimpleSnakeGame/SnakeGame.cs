@@ -125,7 +125,7 @@ namespace SimpleSnakeGame
 
         private void GenFood()
         {
-            var freeLabels = _gridControl._labels.SelectMany(t => t.Where(y => y.BackColor == Color.White)).ToArray();
+            var freeLabels = _gridControl.Labels.SelectMany(t => t.Where(y => y.BackColor == Color.White)).ToArray();
             freeLabels[Random.Next(0, freeLabels.Length)].BackColor = _food;
         }
 
@@ -160,7 +160,7 @@ namespace SimpleSnakeGame
             {
                 _timer.Enabled = false;
                 MessageBox.Show($"end your score is {_score}");
-                foreach (var item in   _gridControl._labels.SelectMany(f => f.Select(t=> t)))
+                foreach (var item in   _gridControl.Labels.SelectMany(f => f.Select(t=> t)))
                 {
                     item.BackColor = Color.White;
                 }
