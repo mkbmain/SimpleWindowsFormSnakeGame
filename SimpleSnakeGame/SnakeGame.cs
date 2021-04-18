@@ -15,13 +15,13 @@ namespace SimpleSnakeGame
         private const int Speed = 15;
         private readonly Color _food = Color.Brown;
         private readonly Timer _timer;
-        
+
         private List<Point> _snake; // first elements tail , last elements head
         private Direction _direction = Direction.East;
         private Direction _lastDirection = Direction.East;
         private readonly System.ComponentModel.IContainer components = null;
         private readonly GridControl _gridControl;
-        
+
         [STAThread]
         static void Main()
         {
@@ -30,7 +30,7 @@ namespace SimpleSnakeGame
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new SnakeGame());
         }
-        
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -40,7 +40,7 @@ namespace SimpleSnakeGame
 
             base.Dispose(disposing);
         }
-        
+
         public SnakeGame()
         {
             this.components = new System.ComponentModel.Container();
@@ -61,21 +61,23 @@ namespace SimpleSnakeGame
             components.Add(_timer);
             _timer.Tick += GameLoop;
             NewGame();
-   
         }
 
         private void NewGame()
         {
             _score = 0;
             _snake = new List<Point> {new Point(13, 16), new Point(14, 16), new Point(15, 16), new Point(16, 16)};
+            _direction = Direction.East;
+            _lastDirection = Direction.East;
             foreach (var item in _snake)
             {
                 _gridControl.GetCord(item).BackColor = Color.Black;
             }
+
             GenFood();
             _timer.Enabled = true;
         }
-        
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             switch (keyData)
@@ -121,6 +123,7 @@ namespace SimpleSnakeGame
 
                     break;
             }
+
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
@@ -135,7 +138,7 @@ namespace SimpleSnakeGame
         {
             var head = _snake.Last();
             var tail = _snake.First();
-            
+
             var point = new Point(head.X, head.Y);
             _lastDirection = _direction;
             switch (_direction)
@@ -160,19 +163,22 @@ namespace SimpleSnakeGame
             if (point.X >= XLenght || point.Y >= YLenght || point.X < 0 || point.Y < 0 || _snake.Skip(1).Contains(point))
             {
                 _timer.Enabled = false;
-                MessageBox.Show($"end your score is {_score}");
-                foreach (var item in   _gridControl.Labels.SelectMany(f => f.Select(t=> t)))
+                if (MessageBox.Show($"Game over your score is {_score}.{Environment.NewLine}New Game?", "Snake Game", MessageBoxButtons.YesNo) ==
+                    DialogResult.Yes)
                 {
-                    item.BackColor = Color.White;
-                }
+                    foreach (var item in _gridControl.Labels.SelectMany(f => f.Select(t => t)))
+                    {
+                        item.BackColor = Color.White;
+                    }
 
-                NewGame();
-              
+                    NewGame();
+                }
+                
                 return;
             }
 
             _snake.Add(point);
-            
+
             var label = _gridControl.GetCord(point);
 
             if (label.BackColor != _food)
@@ -190,6 +196,5 @@ namespace SimpleSnakeGame
             label.BackColor = Color.Black;
             _gridControl.GetCord(tail).BackColor = Color.White;
         }
-        
     }
 }
