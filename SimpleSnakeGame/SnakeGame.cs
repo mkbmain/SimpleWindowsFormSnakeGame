@@ -66,6 +66,7 @@ namespace SimpleSnakeGame
 
         private void NewGame()
         {
+            _score = 0;
             _snake = new List<Point> {new Point(13, 16), new Point(14, 16), new Point(15, 16), new Point(16, 16)};
             foreach (var item in _snake)
             {
