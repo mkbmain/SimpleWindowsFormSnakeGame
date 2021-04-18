@@ -25,7 +25,7 @@ namespace SimpleSnakeGame
             Application.Run(new SnakeGame());
         }
 
-        private List<Point> Snake = new List<Point>(); // first elements tail , last elements head
+        private List<Point> Snake; // first elements tail , last elements head
         private Direction _direction = Direction.East;
         private Direction _lastDirection = Direction.East;
         private System.ComponentModel.IContainer components = null;
@@ -42,38 +42,51 @@ namespace SimpleSnakeGame
         }
 
 
-
         public SnakeGame()
         {
             this.Text = $"Snake Score:{_score}";
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Form1";
             _gridControl = new GridControl(xLenght, yLenght, new Size(this.Width - 15, this.Height - 40));
             this.Controls.Add(_gridControl);
             this.Resize += OnResize;
-            Snake.Add(new Point(13, 16));
-            Snake.Add(new Point(14, 16));
-            Snake.Add(new Point(15, 16));
-            Snake.Add(new Point(16, 16));
+            this.KeyPreview = true;
+
+            Timer = new Timer(components) {Interval = 1000 / Speed};
+            components.Add(Timer);
+            Timer.Tick += GameLoop;
+            NewGame();
+   
+        }
+
+        private void NewGame()
+        {
+            Snake = new List<Point> {new Point(13, 16), new Point(14, 16), new Point(15, 16), new Point(16, 16)};
             foreach (var item in Snake)
             {
                 _gridControl.GetCord(item).BackColor = Color.Black;
             }
-
-            this.KeyPreview = true;
-
-            Timer = new Timer(components) {Interval = 1000 / Speed, Enabled = true};
-            components.Add(Timer);
-            Timer.Tick += GameLoop;
             GenFood();
+            Timer.Enabled = true;
         }
-
+        
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             switch (keyData)
             {
+                case Keys.P:
+                    Timer.Enabled = !Timer.Enabled;
+                    if (!Timer.Enabled)
+                    {
+                        this.Text = this.Text + " {Paused}";
+                    }
+                    else
+                    {
+                        this.Text = this.Text.Replace(" {Paused}", "");
+                    }
+
+                    break;
                 case Keys.Right:
                     if (_lastDirection != Direction.West)
                     {
@@ -103,10 +116,10 @@ namespace SimpleSnakeGame
 
                     break;
             }
-            
+
             return base.ProcessCmdKey(ref msg, keyData);
         }
-        
+
         private void GenFood()
         {
             var freeLabels = _gridControl._labels.SelectMany(t => t.Where(y => y.BackColor == Color.White)).ToArray();
@@ -119,7 +132,7 @@ namespace SimpleSnakeGame
             var head = Snake.Last();
             var tail = Snake.First();
 
-   
+
             Point point = new Point(head.X, head.Y);
             _lastDirection = _direction;
             switch (_direction)
@@ -139,18 +152,25 @@ namespace SimpleSnakeGame
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-       
+
 
             if (point.X >= xLenght || point.Y >= yLenght || point.X < 0 || point.Y < 0 || Snake.Skip(1).Contains(point))
             {
                 Timer.Enabled = false;
                 MessageBox.Show($"end your score is {_score}");
+                foreach (var item in   _gridControl._labels.SelectMany(f => f.Select(t=> t)))
+                {
+                    item.BackColor = Color.White;
+                }
+
+                NewGame();
+              
                 return;
             }
 
             Snake.Add(point);
             var label = _gridControl.GetCord(point);
-         
+
             if (label.BackColor != _food)
             {
                 Snake = Snake.Skip(1).ToList();
@@ -162,6 +182,7 @@ namespace SimpleSnakeGame
                 label.Text = "";
                 GenFood();
             }
+
             label.BackColor = Color.Black;
             _gridControl.GetCord(tail).BackColor = Color.White;
         }
