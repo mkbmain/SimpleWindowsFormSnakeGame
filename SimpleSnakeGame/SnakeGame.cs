@@ -64,6 +64,11 @@ namespace SimpleSnakeGame
 
         private void NewGame()
         {
+            foreach (var item in _gridControl.Labels.SelectMany(f => f.Select(t => t)))
+            {
+                item.BackColor = Color.White;
+            }
+
             _score = 0;
             _snake = new List<Point> {new Point(13, 16), new Point(14, 16), new Point(15, 16), new Point(16, 16)};
             _direction = Direction.East;
@@ -83,22 +88,13 @@ namespace SimpleSnakeGame
             {
                 case Keys.P:
                     _timer.Enabled = !_timer.Enabled;
-                    if (!_timer.Enabled)
-                    {
-                        this.Text = this.Text + " {Paused}";
-                    }
-                    else
-                    {
-                        this.Text = this.Text.Replace(" {Paused}", "");
-                    }
-
+                    this.Text = _timer.Enabled ? this.Text.Replace(" {Paused}", "") : this.Text + " {Paused}";
                     break;
                 case Keys.Right:
                     if (_lastDirection != Direction.West)
                     {
                         _direction = Direction.East;
                     }
-
                     break;
                 case Keys.Up:
                     if (_lastDirection != Direction.South)
@@ -112,14 +108,12 @@ namespace SimpleSnakeGame
                     {
                         _direction = Direction.West;
                     }
-
                     break;
                 case Keys.Down:
                     if (_lastDirection != Direction.North)
                     {
                         _direction = Direction.South;
                     }
-
                     break;
             }
 
@@ -159,20 +153,17 @@ namespace SimpleSnakeGame
             }
 
             // check if out side bounds of map or we have hit our own tail\other part of snake
-            if (point.X >= XLenght || point.Y >= YLenght || point.X < 0 || point.Y < 0 || _snake.Skip(1).Contains(point))
+            if (point.X >= XLenght || point.Y >= YLenght || point.X < 0 || point.Y < 0 ||
+                _snake.Skip(1).Contains(point))
             {
                 _timer.Enabled = false;
-                if (MessageBox.Show($"Game over your score is {_score}.{Environment.NewLine}New Game?", "Snake Game", MessageBoxButtons.YesNo) ==
+                if (MessageBox.Show($"Game over your score is {_score}.{Environment.NewLine}New Game?", "Snake Game",
+                        MessageBoxButtons.YesNo) ==
                     DialogResult.Yes)
                 {
-                    foreach (var item in _gridControl.Labels.SelectMany(f => f.Select(t => t)))
-                    {
-                        item.BackColor = Color.White;
-                    }
-
                     NewGame();
                 }
-                
+
                 return;
             }
 
