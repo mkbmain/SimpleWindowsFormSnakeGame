@@ -25,7 +25,6 @@ namespace SimpleSnakeGame
         [STAThread]
         static void Main()
         {
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new SnakeGame());
@@ -134,7 +133,7 @@ namespace SimpleSnakeGame
         }
 
 
-        private void GameLoop(object? sender, EventArgs e)
+        private void GameLoop(object sender, EventArgs e)
         {
             var head = _snake.Last();
             var tail = _snake.First();
