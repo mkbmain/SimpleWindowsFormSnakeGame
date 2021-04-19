@@ -42,17 +42,17 @@ namespace SimpleSnakeGame
 
         public SnakeGame()
         {
-            this.components = new System.ComponentModel.Container();
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.Text = $"Snake Score:{_score}";
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            _gridControl = new GridControl(XLenght, YLenght, new Size(this.Width - 15, this.Height - 40));
-            this.Controls.Add(_gridControl);
-            this.KeyPreview = true;
-            this.Resize += (sender, args) =>
+            components = new System.ComponentModel.Container();
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Text = $"Snake Score:{_score}";
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(800, 450);
+            _gridControl = new GridControl(XLenght, YLenght, new Size(Width - 15, Height - 40));
+            Controls.Add(_gridControl);
+            KeyPreview = true;
+            Resize += (sender, args) =>
             {
-                _gridControl.Size = new Size(this.Width - 15, this.Height - 40);
+                _gridControl.Size = new Size(Width - 15, Height - 40);
                 _gridControl.Resize();
             };
 
@@ -88,7 +88,7 @@ namespace SimpleSnakeGame
             {
                 case Keys.P:
                     _timer.Enabled = !_timer.Enabled;
-                    this.Text = _timer.Enabled ? this.Text.Replace(" {Paused}", "") : this.Text + " {Paused}";
+                    Text = _timer.Enabled ? Text.Replace(" {Paused}", "") : Text + " {Paused}";
                     break;
                 case Keys.Right:
                     if (_lastDirection != Direction.West)
@@ -178,7 +178,7 @@ namespace SimpleSnakeGame
             else
             {
                 _score += Speed;
-                this.Text = $"Snake Score:{_score}";
+                Text = $"Snake Score:{_score}";
                 label.Text = "";
                 GenFood();
             }
